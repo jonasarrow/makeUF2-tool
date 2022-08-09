@@ -3,13 +3,14 @@
 Arduino plugin which creates a .uf2 file from a .bin file located in the sketch folder.
 <br>
 Tested with the following Arduino IDE versions:
-1.8.8
+1.8.19
 
+Tested with a Raspberry Pi Pico
 
 
 ## Installation
 - Make sure you use one of the supported versions of Arduino IDE.
-- Download the tool archive from [the releases page](https://github.com/blurfl/makeUF2-tool/releases).
+- Download the tool archive from [the releases page](https://github.com/jonasarrow/makeUF2-tool/releases).
 - In your Arduino sketchbook directory, create tools directory if it doesn't exist yet.
 - Unpack the tool into tools directory (the path will look like `<home_dir>/Arduino/tools/makeUF2/tool/makeUF2.jar)`.
 - Restart Arduino IDE. 
