@@ -229,7 +229,13 @@ public class makeUF2 implements Tool {
             FileOutputStream uf2Stream = new FileOutputStream(uf2FilePath, false); // overwrite if existing
             FileInputStream binStream = new FileInputStream(binPath);
 
-            long APP_START_ADDRESS = Long.decode(BaseNoGui.getBoardPreferences().get("upload.offset")); // write file above boot loader
+            long APP_START_ADDRESS = 0x10000000;
+            try {
+                APP_START_ADDRESS = Long.decode(BaseNoGui.getBoardPreferences().get("upload.offset")); // write file above boot loader
+            }
+            catch (Exception e){
+                System.out.println("No upload offset specified, setting to 0x10000000 (Pi Pico FLASH_START (==XIP_MAIN_MEMORY_BASE))");
+            }
 
             long UF2_MAGIC_START0 = 0x0A324655; // "UF2\n"
             long UF2_MAGIC_START1 = 0x9E5D5157; // Randomly selected
@@ -252,7 +258,7 @@ public class makeUF2 implements Tool {
                 // now insert the 32-byte header
                 writeUInt32LE(block, UF2_MAGIC_START0, 0); // First magic number, 0x0A324655 ("UF2\n")
                 writeUInt32LE(block, UF2_MAGIC_START1, 4); // Second magic number, 0x9E5D5157
-                writeUInt32LE(block, 0, 8); // flags
+                writeUInt32LE(block, 0x00002000, 8); // flags, FamilyID present
                 writeUInt32LE(block, APP_START_ADDRESS + pos, 12); // Address in flash where the data should be written
                 //             System.out.println("APP_START_ADDRESS + pos is: "+ Long.toHexString(APP_START_ADDRESS + pos)+" next pos is: "+ Integer.toHexString(pos));
                 writeUInt32LE(block, 256, 16); // Number of bytes used in data (we write 256)
@@ -260,7 +266,7 @@ public class makeUF2 implements Tool {
                 //             System.out.println("block number is: "+(int)(pos/256)); // Sequential block number; starts at 0
                 pos += 256;
                 writeUInt32LE(block, numBlocks, 24); // Total number of blocks in file
-                writeUInt32LE(block, 0, 28); // File size or board family ID or zero
+                writeUInt32LE(block, 0xe48bff56, 28); // File size or board family ID or zero
                 // now insert the 256-byte chunk of the input file 
                 for (int i = 0; i < 256; ++i) {
                     block[i + 32] = theChunk[i];
@@ -281,7 +287,7 @@ public class makeUF2 implements Tool {
             editor.statusError(" Create Failed!");
         }
 
-        editor.statusNotice("makeUF2 built Image... " + uf2Name);
+        editor.statusNotice("makeUF2 built Image " + uf2Name);
         System.out.println("makeUF2 has built " + uf2Name + "\n in the sketch folder " + dataPath + ".\n  Copy that file onto your xxxxBOOT disk to install it");
 
     }
